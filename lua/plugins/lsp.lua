@@ -7,7 +7,6 @@ return {
       -- This is where you modify the settings for lsp-zero
       -- Note: autocompletion settings will not take effect
 
-      print("Hello lsp")
       require('lsp-zero.settings').preset({})
     end
   },
@@ -24,7 +23,6 @@ return {
       -- The arguments for .extend() have the same shape as `manage_nvim_cmp`:
       -- https://github.com/VonHeikemen/lsp-zero.nvim/blob/v2.x/doc/md/api-reference.md#manage_nvim_cmp
 
-      print("Hello cmp")
       require('lsp-zero.cmp').extend()
 
       -- And you can configure cmp even more, if you want to.
@@ -61,15 +59,40 @@ return {
       local lsp = require('lsp-zero')
 
       lsp.on_attach(function(_, bufnr)
-
         lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
 
         vim.keymap.set('n', 'gr', '<cmd>Telescope lsp_references<cr>', { buffer = true })
         vim.keymap.set('n', '<F4>', '<cmd>CodeActionMenu<cr>', { buffer = true })
       end)
+      -- format on save
+      lsp.format_on_save({
+        format_opts = {
+          async = false,
+          timeout_ms = 10000,
+        },
+        servers = {
+          ['lua_ls'] = { 'lua' },
+          ['gopls'] = { 'go' },
+          -- if you have a working setup with null-ls
+          -- you can specify filetypes it can format.
+          -- ['null-ls'] = {'javascript', 'typescript'},
+        }
+      })
 
       -- (Optional) Configure lua language server for neovim
-      require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
+      --
+      local lspconfig = require('lspconfig')
+      lspconfig.lua_ls.setup(lsp.nvim_lua_ls())
+      lspconfig.gopls.setup { settings = {
+        gopls = {
+          completeUnimported = true,
+          usePlaceholders = true,
+          analyses = {
+            unusedparams = true,
+          },
+        },
+      },
+      }
 
       lsp.setup()
     end
