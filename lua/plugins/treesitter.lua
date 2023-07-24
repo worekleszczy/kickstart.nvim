@@ -1,11 +1,11 @@
-
-return { -- Highlight, edit, and navigate code
+return {
+  -- Highlight, edit, and navigate code
   'nvim-treesitter/nvim-treesitter',
   dependencies = {
     'nvim-treesitter/nvim-treesitter-textobjects',
   },
   build = ":TSUpdate",
-  config = function ()
+  config = function()
     -- [[ Configure Treesitter ]]
     -- See `:help nvim-treesitter`
     require('nvim-treesitter.configs').setup {
@@ -34,8 +34,8 @@ return { -- Highlight, edit, and navigate code
             -- You can use the capture groups defined in textobjects.scm
             ['aa'] = '@parameter.outer',
             ['ia'] = '@parameter.inner',
-            ['af'] = '@function.outer',
-            ['if'] = '@function.inner',
+            ['aF'] = '@function.outer',
+            ['iF'] = '@function.inner',
             ['ac'] = '@class.outer',
             ['ic'] = '@class.inner',
           },
@@ -46,18 +46,22 @@ return { -- Highlight, edit, and navigate code
           goto_next_start = {
             [']m'] = '@function.outer',
             [']]'] = '@class.outer',
+            [']a'] = '@parameter.outer',
           },
           goto_next_end = {
             [']M'] = '@function.outer',
             [']['] = '@class.outer',
+            [']A'] = '@parameter.outer',
           },
           goto_previous_start = {
             ['[m'] = '@function.outer',
             ['[['] = '@class.outer',
+            ['[a'] = '@parameter.outer',
           },
           goto_previous_end = {
             ['[M'] = '@function.outer',
             ['[]'] = '@class.outer',
+            ['[A'] = '@parameter.outer',
           },
         },
         swap = {
