@@ -62,8 +62,12 @@ return {
         lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
 
         vim.keymap.set('n', 'gr', '<cmd>Telescope lsp_references<cr>', { buffer = true })
-        vim.keymap.set('n', '<F4>', '<cmd>CodeActionMenu<cr>', { buffer = true })
+        -- vim.keymap.set('n', '<F4>', '<cmd>CodeActionMenu<cr>', { buffer = true })
       end)
+
+
+      lsp.setup_servers({ 'metals' })
+
       -- format on save
       lsp.format_on_save({
         format_opts = {
@@ -73,6 +77,7 @@ return {
         servers = {
           ['lua_ls'] = { 'lua' },
           ['gopls'] = { 'go' },
+          ['metals'] = { 'scala' },
           -- if you have a working setup with null-ls
           -- you can specify filetypes it can format.
           -- ['null-ls'] = {'javascript', 'typescript'},
