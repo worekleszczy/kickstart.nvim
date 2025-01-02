@@ -38,6 +38,8 @@ return {
             ['iF'] = '@function.inner',
             ['ac'] = '@class.outer',
             ['ic'] = '@class.inner',
+            ["ak"] = "@key",
+            ["av"] = "@value",
           },
         },
         move = {
@@ -47,6 +49,7 @@ return {
             [']m'] = '@function.outer',
             [']]'] = '@class.outer',
             [']a'] = '@parameter.outer',
+            [']v'] = '@value',
           },
           goto_next_end = {
             [']M'] = '@function.outer',
@@ -62,6 +65,7 @@ return {
             ['[M'] = '@function.outer',
             ['[]'] = '@class.outer',
             ['[A'] = '@parameter.outer',
+            ['[v'] = '@value',
           },
         },
         swap = {
@@ -75,5 +79,54 @@ return {
         },
       },
     }
+
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "json",
+      callback = function()
+        vim.opt_local.foldmethod = "expr"                     -- Use expression-based folding
+        vim.opt_local.foldexpr = "nvim_treesitter#foldexpr()" -- Tree-sitter fold expression
+
+        local ts_utils = require 'nvim-treesitter.ts_utils'
+
+        -- Function to move to the next sibling key
+        local function go_to_sibling_key(direction)
+          local current_node = ts_utils.get_node_at_cursor()
+
+          -- Find the nearest `pair` node (JSON key-value pair)
+          while current_node and current_node:type() ~= "pair" do
+            current_node = current_node:parent()
+          end
+
+          if not current_node then
+            print("No key found under cursor!")
+            return
+          end
+
+          -- Move to the sibling node
+          local sibling
+          if direction == "next" then
+            sibling = current_node:next_named_sibling()
+          else
+            sibling = current_node:prev_named_sibling()
+          end
+
+          if sibling and sibling:type() == "pair" then
+            -- Move the cursor to the sibling's `key` node
+            local key_node = sibling:field("key")[1]
+            if key_node then
+              ts_utils.goto_node(key_node)
+            else
+              print("Sibling key not found!")
+            end
+          else
+            print("No more siblings!")
+          end
+        end
+
+        -- Keymaps for navigating sibling keys
+        vim.keymap.set("n", "]k", function() go_to_sibling_key('next') end, { noremap = true, silent = true })
+        vim.api.set("n", "[k", function() go_to_sibling_key('prev') end, { noremap = true, silent = true })
+      end,
+    })
   end
 }
